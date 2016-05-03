@@ -1,0 +1,48 @@
+﻿{
+	  "intents": [
+	    {
+	      "intent": "GetNextBusIntent",
+          "slots": [
+            {
+            	"name": "Route",
+            	"type": "AMAZON.NUMBER"
+            }
+          ]
+	    },
+	    {
+	      "intent": "GetNextBusTimeIntent",
+          "slots": [
+            {
+            	"name": "Route",
+            	"type": "AMAZON.NUMBER"
+            },
+            {
+            	"name": "Date",
+            	"type": "AMAZON.DATE"
+            }
+          ]
+	    },
+	    {
+	      "intent": "GetNextNBusTimeIntent",
+          "slots": [
+            {
+            	"name": "Route",
+            	"type": "AMAZON.NUMBER"
+            },
+            {
+            	"name": "Count",
+            	"type": "AMAZON.NUMBER"
+            }
+          ]
+	    },
+	    {
+	      "intent": "AMAZON.HelpIntent"
+	    },
+	    {
+	      "intent": "AMAZON.StopIntent"
+	    },
+	    {
+	      "intent": "AMAZON.CancelIntent"
+	    }
+	  ]
+}

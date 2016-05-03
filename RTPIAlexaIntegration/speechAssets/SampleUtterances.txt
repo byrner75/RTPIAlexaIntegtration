@@ -1,0 +1,11 @@
+﻿GetNextBusIntent when is the next {Route}
+GetNextBusIntent when is the next {Route} due
+GetNextBusIntent is there a {Route} due
+GetNextBusIntent have i missed the {Route}
+GetNextBusIntent how long have i to wait for the {Route}
+GetNextBusIntent how long have i to wait for a {Route}
+GetNextBusTimeIntent what time is the next {Route}
+GetNextBusTimeIntent what time is the next {Route} due
+GetNextBusTimeIntent what time is the first {Route} {Date}
+GetNextBusTimeIntent what time is the last {Route} {Date}
+GetNextNBusTimesIntent what are the times of the next {Count} {Route}

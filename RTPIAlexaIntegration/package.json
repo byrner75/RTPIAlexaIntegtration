@@ -1,0 +1,27 @@
+{
+  "name": "RTPIClient",
+  "version": "0.0.0",
+  "description": "RTPIClient",
+  "main": "app.js",
+  "author": {
+    "name": "rober",
+    "email": ""
+  },
+  "scripts": {
+    "test": "./node_modules/.bin/mocha --reporter spec"
+  },
+  "dependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^2.4.5",
+    "moment": "^2.13.0",
+    "winston": "^2.2.0"
+  },
+  "devDependencies": {
+    "grunt": "^1.0.1",
+    "grunt-contrib-compress": "^1.2.0",
+    "grunt-contrib-jshint": "^1.0.0",
+    "grunt-contrib-uglify": "^1.0.1",
+    "grunt-mocha-test": "^0.12.7",
+    "nock": "^8.0.0"
+  }
+}
