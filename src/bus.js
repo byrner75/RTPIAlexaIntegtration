@@ -1,7 +1,7 @@
 /**
  * App ID for the skill
  */
-var APP_ID = "amzn1.echo-sdk-ams.app.dec3cf8c-11aa-4035-ae6c-dcaaa355e547";
+var APP_ID = "amzn1.echo-sdk-ams.app.97e36e14-c5b0-4bcd-aec4-a5ce15051755";
 
 /**
  * The AlexaSkill prototype and helper functions
@@ -78,7 +78,8 @@ function handleNextBusRequest(intent, response) {
             speechOutput = "Hhhhmm looks like your walking home, there doesnt appear to be any more buses";
         }
         
-        response.tellWithCard(speechOutput, "EchoBus", speechOutput);    
+        //response.tellWithCard(speechOutput, "EchoBus", speechOutput);
+        response.ask("Tell me your stop number?", true);    
     },
     function (err) {
         var speechOutput = "I encountered a problem retrieving that information";
