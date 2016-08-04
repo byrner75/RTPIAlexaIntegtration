@@ -1,11 +1,12 @@
 ﻿'use strict';
 
 var https = require('https');
-
+var Q = require('q');
 function RTPIClient() {
 }
 
-RTPIClient.execute = function (options, callbackOk, callbackErr) {
+RTPIClient.execute = function (options) {
+    var deferred = Q.defer();
     https.request(options, function (response) {
         var str = '';
         response.on('data', function (chunk) {
@@ -13,25 +14,26 @@ RTPIClient.execute = function (options, callbackOk, callbackErr) {
         });
         response.on('end', function () {
             if (response.statusCode === 200) {
-                callbackOk && callbackOk(JSON.parse(str));
+                deferred.resolve(JSON.parse(str));
             }
             else {
-                callbackErr && callbackErr(response);
+                deferred.reject(response);
             }
         });
     }).end();
+    return deferred.promise;
 }
 
 
-RTPIClient.prototype.operatorInformation = function(callbackOk, callbackErr) {
+RTPIClient.prototype.operatorInformation = function() {
     var options = {
         host: 'data.dublinked.ie',
         path: '/cgi-bin/rtpi/operatorinformation?format=json'
     };
-    RTPIClient.execute(options, callbackOk, callbackErr);
+    return RTPIClient.execute(options);
 }
 
-RTPIClient.prototype.realtimeInformation = function(stopId, routeId, operator, maxResults, callbackOk, callbackErr) {
+RTPIClient.prototype.realtimeInformation = function(stopId, routeId, operator, maxResults) {
     var options = {
         host: 'data.dublinked.ie',
         path: '/cgi-bin/rtpi/realtimebusinformation?format=json&stopid=' 
@@ -40,10 +42,10 @@ RTPIClient.prototype.realtimeInformation = function(stopId, routeId, operator, m
               + (operator != null ? '&operator=' + operator : '')
               + (maxResults != null ? '&maxresults=' + maxResults : '')
     };
-    RTPIClient.execute(options, callbackOk, callbackErr);
+    return RTPIClient.execute(options);
 }
 
-RTPIClient.prototype.timetableDayInformation = function(stopId, routeId, dateTime, callbackOk, callbackErr) {
+RTPIClient.prototype.timetableDayInformation = function(stopId, routeId, dateTime) {
     var options = {
         host: 'data.dublinked.ie',
         path: '/cgi-bin/rtpi/timetableinformation?format=json&type=day&stopid=' 
@@ -51,20 +53,20 @@ RTPIClient.prototype.timetableDayInformation = function(stopId, routeId, dateTim
               + (routeId != null ? '&routeid=' + routeId : '') 
               + (dateTime != null ? '&datetime=' + encodeURIComponent(dateTime) : '')
     };
-    RTPIClient.execute(options, callbackOk, callbackErr);
+    return RTPIClient.execute(options);
 }
 
-RTPIClient.prototype.timetableWeekInformation = function(stopId, routeId, callbackOk, callbackErr) {
+RTPIClient.prototype.timetableWeekInformation = function(stopId, routeId) {
     var options = {
         host: 'data.dublinked.ie',
         path: '/cgi-bin/rtpi/timetableinformation?format=json&type=week&stopid=' 
               + stopId 
               + (routeId != null ? '&routeid=' + routeId : '')
     };
-    RTPIClient.execute(options, callbackOk, callbackErr);
+    return RTPIClient.execute(options);
 }
 
-RTPIClient.prototype.busstopInformation = function(stopId, stopName, operator, callbackOk, callbackErr) {
+RTPIClient.prototype.busstopInformation = function(stopId, stopName, operator) {
     var options = {
         host: 'data.dublinked.ie',
         path: '/cgi-bin/rtpi/busstopinformation?format=json' 
@@ -72,23 +74,23 @@ RTPIClient.prototype.busstopInformation = function(stopId, stopName, operator, c
               + (stopName != null ? '&stopname=' + stopName : '')
               + (operator != null ? '&operator=' + operator : '')
     };
-    RTPIClient.execute(options, callbackOk, callbackErr);
+    return RTPIClient.execute(options);
 }
 
-RTPIClient.prototype.routeInformation = function(routeId, operator, callbackOk, callbackErr) {
+RTPIClient.prototype.routeInformation = function(routeId, operator) {
     var options = {
         host: 'data.dublinked.ie',
         path: '/cgi-bin/rtpi/routeinformation?format=json&routeid=' + routeId + '&operator=' + operator 
     };
-    RTPIClient.execute(options, callbackOk, callbackErr);
+    return RTPIClient.execute(options);
 }
 
-RTPIClient.prototype.routeListInformation = function(operator, callbackOk, callbackErr) {
+RTPIClient.prototype.routeListInformation = function(operator) {
     var options = {
         host: 'data.dublinked.ie',
         path: '/cgi-bin/rtpi/routelistinformation?format=json&operator=' + operator
     };    
-    RTPIClient.execute(options, callbackOk, callbackErr);
+    return RTPIClient.execute(options);
 }
 
 module.exports = RTPIClient;
