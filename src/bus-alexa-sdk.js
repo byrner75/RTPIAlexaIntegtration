@@ -25,7 +25,6 @@ exports.handler = function(event, context) {
 
 var intentHandlers = {
     "GetNextBusIntent": function () {
-        console.log("GetNextBusIntent")
         handleNextBusRequest(this.event.request.intent, this);
     },
     
@@ -33,8 +32,43 @@ var intentHandlers = {
         handleNextBusTimeRequest(this.event.request.intent, this);
     },
 
-    "SetFavouriteRouteIntent": function() {
+    "SetCurrentRouteIntent": function() {
         this.emit(':tell', "Thank you");            
+    },
+
+    "GetCurrentRouteIntent": function() {
+        var alexa = this;
+        if(this.attributes["Route"]) {
+            alexa.emit(":tell", "Your current bus route is the number <say-as interpret-as=\"digits\">" + alexa.attributes["Route"] + "</say-as>");            
+        }
+        else {
+            // TODO ask would they like to configure
+            alexa.emit(":tell", "You have no route configured");            
+        }
+    },
+
+    "SetCurrentStopIntent": function() {
+        this.emit(':tell', "Thank you");            
+    },
+
+    "GetCurrentStopIntent": function() {
+        var alexa = this;
+        if(this.attributes["StopNumber"]) {
+            var client = new RTPIClient();
+            client.busstopInformation(this.attributes["StopNumber"], "", "bac").then(function(data) {
+                alexa.emit(":tell", "Your current bus stop is number <say-as interpret-as=\"digits\">" + alexa.attributes["StopNumber"] + "</say-as>, " + data.results[0].fullname);            
+            }).fail(function(err) {
+                alexa.emit(":tell", "Your current bus stop is number " + alexa.attributes["StopNumber"]);            
+            });
+        }
+        else {
+            // TODO ask would they like to configure
+            alexa.emit(":tell", "You have no stop configured");            
+        }
+    },
+
+    "SetNumberIntent" : function() {
+        setNumberIntent(this.event.request.intent.slots.Number.value, this);
     },
 
     "AMAZON.HelpIntent": function () {
@@ -68,6 +102,16 @@ var eventHandlers = {
     }
 }
 
+function setNumberIntent(number, alexa) {
+    if(alexa.attributes["StopNumberRequired"]) {
+        actionNextBus(alexa.attributes["Route"], number, alexa)
+        alexa.attributes["StopNumber"] = number;
+        delete alexa.attributes["StopNumberRequired"];
+    } 
+    else {
+        alexa.emit(":tell", "Hhhhmm im not sure what you want me to do with this number");        
+    }
+}
 
 function handleNextBusRequest(intent, alexa) {
     winston.log("debug", "> handleNextBusRequest");
@@ -75,21 +119,28 @@ function handleNextBusRequest(intent, alexa) {
     if(alexa.attributes["StopNumber"]) {
         var client = new RTPIClient();
         //4182
-        client.realtimeInformation(alexa.attributes["StopNumber"], intent.slots.Route.value, "bac", 1, 
-        function (json) {
+        client.realtimeInformation(alexa.attributes["StopNumber"], intent.slots.Route.value, "bac", 1).then(function (json) {
             // Create speech output
             winston.log("debug", json);
             var speechOutput;
             if (json.results.length) {
-                speechOutput = "The next bus is in " + json.results[0].duetime + " minutes";
+                speechOutput = "The next bus is "
+                if(json.results[0].duetime == "0") {
+                    speechOutput += "due"
+                }
+                else if(json.results[0].duetime == "1") {
+                    speechOutput += "in a minute"
+                }
+                else {
+                    speechOutput += "in " + json.results[0].duetime + " minutes";
+                }
             }
             else {
                 speechOutput = "Hhhhmm looks like your walking home, there doesnt appear to be any more buses";
             }
             
             alexa.emit(':tell', speechOutput);
-        },
-        function (err) {
+        }).fail(function (err) {
             var speechOutput = "I encountered a problem retrieving that information";
 
             alexa.emit(":tell", speechOutput);
@@ -135,3 +186,27 @@ function handleNextBusTimeRequest(intent) {
     winston.log("debug", "< handleNextBusTimeRequest");
 }
 
+function actionNextBus(route, stop, alexa) {
+    winston.log("debug", "> actionNextBus");
+    var client = new RTPIClient();
+    client.realtimeInformation(stop, route, "bac", 1, 
+    function (json) {
+        // Create speech output
+        winston.log("debug", json);
+        var speechOutput;
+        if (json.results.length) {
+            speechOutput = "The next bus is in " + json.results[0].duetime + " minutes";
+        }
+        else {
+            speechOutput = "Hhhhmm looks like your walking home, there doesnt appear to be any more buses";
+        }
+        
+        alexa.emit(':tell', speechOutput);
+    },
+    function (err) {
+        var speechOutput = "I encountered a problem retrieving that information";
+
+        alexa.emit(":tell", speechOutput);
+    });
+    winston.log("debug", "< actionNextBus");
+}

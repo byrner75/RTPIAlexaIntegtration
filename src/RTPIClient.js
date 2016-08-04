@@ -1,11 +1,12 @@
 ﻿'use strict';
-
+var winston = require("winston");
 var https = require('https');
 var Q = require('q');
 function RTPIClient() {
 }
 
 RTPIClient.execute = function (options) {
+    winston.debug("> execute - " + JSON.stringify(options));
     var deferred = Q.defer();
     https.request(options, function (response) {
         var str = '';
@@ -13,14 +14,17 @@ RTPIClient.execute = function (options) {
             str += chunk;
         });
         response.on('end', function () {
+            winston.debug("= execute - " + str);
             if (response.statusCode === 200) {
                 deferred.resolve(JSON.parse(str));
             }
             else {
+                winston.debug("! execute - " + JSON.stringify(response));
                 deferred.reject(response);
             }
         });
     }).end();
+    winston.debug("< execute");
     return deferred.promise;
 }
 
